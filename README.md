@@ -14,6 +14,51 @@ The only requirement for all this to work is to have animations with both root m
 
 You can find more on how to set all this up on the wiki [here!](https://github.com/GuilhermeGSousa/godot-motion-matching/wiki)
 
+### :brain: ONNX Learned Motion Model
+
+This fork adds an optional ONNX bridge for learned motion matching models. The bridge is intentionally external to the native GDExtension build: Godot calls a Python runner, and the runner executes a model stack with `onnxruntime`. This keeps the base extension build unchanged while still letting a Godot project query learned ONNX locomotion models at runtime.
+
+Expected model files:
+
+- `projector.onnx`: 24 query features to 56 latent features
+- `stepper.onnx`: 56 latent features to the next 56 latent features
+- `decompressor.onnx`: 56 latent features to 1155 pose features
+- `compressor.onnx`: 2310 transition pose features to a 32 feature transition embedding
+
+Install the Python dependencies:
+
+```bash
+python -m pip install -r requirements-onnx.txt
+```
+
+Run the model stack directly:
+
+```bash
+python tools/run_onnx_motion_model.py \
+  --model-dir path/to/Learned-Motion-Matching/onnx \
+  --output-dir out/onnx_motion
+```
+
+Use it from Godot:
+
+```gdscript
+var model := MMOnnxMotionModel.new(
+	ProjectSettings.globalize_path("res://"),
+	"path/to/Learned-Motion-Matching/onnx",
+	ProjectSettings.globalize_path("user://onnx_motion")
+)
+
+var query := PackedFloat32Array()
+for i in range(24):
+	query.append(0.0)
+
+var result := model.run_query(query)
+if result.ok:
+	print(result.summary)
+```
+
+`MMOnnxMotionModel` lives at `addons/motion_matching/onnx/mm_onnx_motion_model.gd`. The wrapper validates the 24-float query contract, writes a query JSON file, runs `tools/run_onnx_motion_model.py`, and returns the parsed ONNX summary to Godot.
+
 
 ### :raised_hands: Credits
 I want to thank all the contributors that made this project possible!
