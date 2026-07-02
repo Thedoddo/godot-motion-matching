@@ -9,6 +9,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "tools" / "run_onnx_motion_model.py"
 GODOT_RUNNER = ROOT / "addons" / "motion_matching" / "onnx" / "mm_onnx_motion_model.gd"
+GODOT_SMOKE = ROOT / "tests" / "godot_onnx_smoke"
 
 
 def load_module():
@@ -44,6 +45,22 @@ def test_godot_runner_exposes_onnx_motion_model_api():
     assert "func run_query(query: PackedFloat32Array) -> Dictionary:" in source
     assert "--model-dir" in source
     assert "--query-json" in source
+
+
+def test_godot_smoke_project_runs_onnx_wrapper_from_environment():
+    project_file = GODOT_SMOKE / "project.godot"
+    scene_file = GODOT_SMOKE / "main.tscn"
+    script_file = GODOT_SMOKE / "main.gd"
+
+    assert project_file.exists()
+    assert scene_file.exists()
+    source = script_file.read_text(encoding="utf-8")
+    assert "MM_ONNX_REPO_ROOT" in source
+    assert "MM_ONNX_MODEL_DIR" in source
+    assert "MM_ONNX_OUTPUT_DIR" in source
+    assert "tmp/godot_onnx_smoke_output" in source
+    assert "MM_ONNX_SMOKE_RESULT " in source
+    assert "runner.run_query(query)" in source
 
 
 def test_rollout_never_feeds_compressed_transition_into_stepper(monkeypatch):

@@ -1,0 +1,12 @@
+config_version=5
+
+[application]
+
+config/name="Motion Matching ONNX Smoke"
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.4")
+
+[autoload]
+
+
+

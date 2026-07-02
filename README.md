@@ -59,6 +59,20 @@ if result.ok:
 
 `MMOnnxMotionModel` lives at `addons/motion_matching/onnx/mm_onnx_motion_model.gd`. The wrapper validates the 24-float query contract, writes a query JSON file, runs `tools/run_onnx_motion_model.py`, and returns the parsed ONNX summary to Godot.
 
+Run the source tests:
+
+```bash
+python -m pytest tests/test_onnx_motion_model.py -q
+```
+
+Run the Godot smoke test by opening `tests/godot_onnx_smoke/project.godot`. The smoke scene reads these optional environment variables:
+
+- `MM_ONNX_REPO_ROOT`
+- `MM_ONNX_MODEL_DIR`
+- `MM_ONNX_OUTPUT_DIR`
+
+If `MM_ONNX_OUTPUT_DIR` is not set, the scene writes to `tmp/godot_onnx_smoke_output` inside this repo. The scene prints `MM_ONNX_SMOKE_RESULT ...` and exits with a non-zero code if the ONNX query fails.
+
 
 ### :raised_hands: Credits
 I want to thank all the contributors that made this project possible!
